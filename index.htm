@@ -1,0 +1,601 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<link href="nv/src/nv.d3.css" rel="stylesheet" type="text/css">
+<style>
+  body {
+    font: 10px sans-serif;
+    overflow-y:scroll;
+  }
+  
+  
+  text {
+    font: 12px sans-serif;
+  }
+  
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+  
+  .dot {
+    stroke: #000;
+  }
+  
+  #chart1 {
+    margin: 10px;
+    min-width: 100px;
+    min-height: 100px;
+    /*
+    Minimum height and width is a good idea to prevent negative SVG dimensions...
+    For example width should be =< margin.left + margin.right + 1,
+    of course 1 pixel for the entire chart would not be very useful, BUT should not have errors
+    */
+  }
+  
+  #chart1 svg {
+    height: 500px;
+  }
+  
+  div.tooltip {
+    
+    position: absolute;
+    
+    text-align: center;
+    
+    width: 120px;
+    
+    height: 40px;
+    
+    padding: 2px;
+    
+    font: 12px sans-serif;
+    
+    background: lightsteelblue;
+    
+    border: 0px;
+    
+    border-radius: 8px;
+    
+    pointer-events: none;
+    
+  }
+  
+</style>
+<body>
+  <div class="container">
+    <div class="row-fluid">
+    	<div id="departments" class="span12">
+    	</div>
+    </div>
+    <div id="chart1" class='well with-3d-shadow with-transitions'>
+      <svg>
+      </svg>
+    </div>
+  </div>
+    <script src="/nv/lib/d3.v3.js">
+    </script>
+    <script src="/nv/nv.d3.js">
+    </script>
+    <script src="/nv/src/utils.js">
+    </script>
+    <script src="/nv/src/tooltip.js">
+    </script>
+    <script src="/nv/src/models/legend.js">
+    </script>
+    <script src="/nv/src/models/axis.js">
+    </script>
+    <script src="/nv/src/models/multiBarHorizontal.js">
+    </script>
+    <script src="/nv/src/models/multiBarHorizontalChart.js">
+    </script>
+    <script src="nv/stream_layers.js">
+    </script>
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js">
+    </script>
+    <script>
+      
+      
+      
+      long_short_data = [
+        {
+          "color":"#d62728",
+          "values":[
+            {
+              "value":4.645878378378379,
+              "label":"Department of Agriculture"
+            }
+            ,
+            {
+              "value":-4.345106382978724,
+              "label":"Department of the Interior"
+            }
+            ,
+            {
+              "value":4.300624999999998,
+              "label":"Department of Justice"
+            }
+            ,
+            {
+              "value":-10.068355263157894,
+              "label":"Department of Labor"
+            }
+            ,
+            {
+              "value":6.4158974358974366,
+              "label":"Department of State"
+            }
+            ,
+            {
+              "value":-2.779507389162561,
+              "label":"Department of the Treasury"
+            }
+            ,
+            {
+              "value":-0.03456730769230816,
+              "label":"Social Security Administration"
+            }
+            ,
+            {
+              "value":2.3265486725663704,
+              "label":"Department of Education"
+            }
+            ,
+            {
+              "value":2.977413793103448,
+              "label":"Department of Energy"
+            }
+            ,
+            {
+              "value":-0.8946052631578945,
+              "label":"Nuclear Regulatory Commission"
+            }
+            ,
+            {
+              "value":6.510714285714285,
+              "label":"U.S. Agency for International Development"
+            }
+            ,
+            {
+              "value":3.9439130434782608,
+              "label":"National Science Foundation"
+            }
+            ,
+            {
+              "value":-5.214148148148,
+              "label":"U.S. Army Corps of Engineers"
+            }
+            ,
+            {
+              "value":-0.048048780487805066,
+              "label":"Department of Housing and Urban Development"
+            }
+            ,
+            {
+              "value":-11.26330508474576,
+              "label":"Department of Homeland Security"
+            }
+            ,
+            {
+              "value":1.3360344827586204,
+              "label":"Office of Personnel Management"
+            }
+            ,
+            {
+              "value":1.0366666666666668,
+              "label":"National Aeronautics and Space Administration"
+            }
+            ,
+            {
+              "value":-13.575102739726029,
+              "label":"Department of Defense"
+            }
+            ,
+            {
+              "value":2.378813559322034,
+              "label":"Environmental Protection Agency"
+            }
+            ,
+            {
+              "value":1.0337241379310347,
+              "label":"General Services Administration"
+            }
+            ,
+            {
+              "value":-3.718262295081964,
+              "label":"Department of Health and Human Services"
+            }
+            ,
+            {
+              "value":-126.74149999999999,
+              "label":"Department of Veterans Affairs"
+            }
+            ,
+            {
+              "value":1.1835897435897438,
+              "label":"Small Business Administration"
+            }
+            ,
+            {
+              "value":-2.8064444444444447,
+              "label":"National Archives and Records Administration"
+            }
+            ,
+            {
+              "value":1.4036162361623619,
+              "label":"Department of Transportation"
+            }
+            ,
+            {
+              "value":-110.55803763440865,
+              "label":"Department of Commerce"
+            }
+          ],
+          "key":"Average Cost Variation"
+        }
+        ,
+        {
+          "color":"#1f77b4",
+          "values":[
+            {
+              "value":-185.40094594594598,
+              "label":"Department of Agriculture"
+            }
+            ,
+            {
+              "value":-21.134255319148934,
+              "label":"Department of the Interior"
+            }
+            ,
+            {
+              "value":-11.850312500000001,
+              "label":"Department of Justice"
+            }
+            ,
+            {
+              "value":-53.27881578947369,
+              "label":"Department of Labor"
+            }
+            ,
+            {
+              "value":-4.4778632478632465,
+              "label":"Department of State"
+            }
+            ,
+            {
+              "value":-15.332266009852216,
+              "label":"Department of the Treasury"
+            }
+            ,
+            {
+              "value":-4.737163461538456,
+              "label":"Social Security Administration"
+            }
+            ,
+            {
+              "value":-24.697168141592925,
+              "label":"Department of Education"
+            }
+            ,
+            {
+              "value":5.21896551724138,
+              "label":"Department of Energy"
+            }
+            ,
+            {
+              "value":-36.58236842105266,
+              "label":"Nuclear Regulatory Commission"
+            }
+            ,
+            {
+              "value":-6.334285714285714,
+              "label":"U.S. Agency for International Development"
+            }
+            ,
+            {
+              "value":0.0,
+              "label":"National Science Foundation"
+            }
+            ,
+            {
+              "value":-20.57,
+              "label":"U.S. Army Corps of Engineers"
+            }
+            ,
+            {
+              "value":-10.699756097560975,
+              "label":"Department of Housing and Urban Development"
+            }
+            ,
+            {
+              "value":-13.20305084745763,
+              "label":"Department of Homeland Security"
+            }
+            ,
+            {
+              "value":-10.326379310344828,
+              "label":"Office of Personnel Management"
+            }
+            ,
+            {
+              "value":-13.092500000000003,
+              "label":"National Aeronautics and Space Administration"
+            }
+            ,
+            {
+              "value":-15.221986301369865,
+              "label":"Department of Defense"
+            }
+            ,
+            {
+              "value":-1.1361016949152543,
+              "label":"Environmental Protection Agency"
+            }
+            ,
+            {
+              "value":-2.6733793103448273,
+              "label":"General Services Administration"
+            }
+            ,
+            {
+              "value":-7.7896065573770485,
+              "label":"Department of Health and Human Services"
+            }
+            ,
+            {
+              "value":-25.750035714285715,
+              "label":"Department of Veterans Affairs"
+            }
+            ,
+            {
+              "value":-11.357435897435897,
+              "label":"Small Business Administration"
+            }
+            ,
+            {
+              "value":-31.130444444444446,
+              "label":"National Archives and Records Administration"
+            }
+            ,
+            {
+              "value":-44.346125461254616,
+              "label":"Department of Transportation"
+            }
+            ,
+            {
+              "value":-22.8386559139785,
+              "label":"Department of Commerce"
+            }
+          ],
+          "key":"Average Time Variation"
+        }
+      ];
+      
+      
+      var chart;
+      nv.addGraph(function() {
+        chart = nv.models.multiBarHorizontalChart()
+          .x(function(d) {
+            return d.label }
+            )
+          .y(function(d) {
+            return d.value }
+            )
+          .margin({
+            top: 30, right: 20, bottom: 50, left: 175}
+                 )
+          //.showValues(true)
+          //.tooltips(false)
+          .barColor(d3.scale.category20().range())
+          .transitionDuration(250)
+          .stacked(true)
+          //.showControls(false);
+          
+          chart.yAxis
+            .tickFormat(d3.format(',.2f'));
+        
+        d3.select('#chart1 svg')
+          .datum(long_short_data)
+          .call(chart);
+        
+        nv.utils.windowResize(chart.update);
+        
+        chart.dispatch.on('stateChange', function(e) {
+          nv.log('New State:', JSON.stringify(e));
+        }
+                         );
+        
+        return chart;
+      },function(){
+          d3.selectAll("text").on('click',
+               function(){
+                     console.log("test");
+           });
+      }
+                 );
+      
+      function loadDepartments(json){
+        
+      }
+      
+      function checkfilter (argument) {
+        // body...
+      }
+      
+      var margin = {
+        top: 20, right: 20, bottom: 30, left: 40}
+          ,
+          width = 960 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+      
+      var x = d3.scale.linear()
+          .range([0, width]);
+      
+      var y = d3.scale.linear()
+          .range([height, 0]);
+      
+      var color = d3.scale.category10();
+      
+      var xAxis = d3.svg.axis()
+          .scale(x)
+          .orient("bottom");
+      
+      var yAxis = d3.svg.axis()
+          .scale(y)
+          .orient("left");
+      
+      var svg = d3.select("body").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      
+      d3.tsv("Nuclear Regulatory Commission.tsv", function(error, data) {
+        data.forEach(function(d) {
+          d.tv = +d.tv;
+          d.cv = +d.cv;
+        }
+                    );
+        
+        x.domain(d3.extent(data, function(d) {
+          return d.cv;
+        }
+                          )).nice();
+        y.domain(d3.extent(data, function(d) {
+          return d.tv;
+        }
+                          )).nice();
+        
+        svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis)
+          .append("text")
+          .attr("class", "label")
+          .attr("x", width)
+          .attr("y", -6)
+          .style("text-anchor", "end")
+          .text("Sepal Width (cm)");
+        
+        svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+          .append("text")
+          .attr("class", "label")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text("Sepal Length (cm)")
+          
+          svg.selectAll(".dot")
+            .data(data)
+            .enter().append("circle")
+            .attr("class", "dot")
+            .attr("r", 3.5)
+            .attr("cx", function(d) {
+              return x(d.cv);
+            }
+                 )
+            .attr("cy", function(d) {
+              return y(d.tv);
+            }
+                 )
+            .style("fill", function(d) {
+              return color(d.dept);
+            }
+                  )
+            .on("mouseover", function(d) {
+              
+              div.transition()        
+                .duration(200)      
+                .style("opacity", .9);
+              
+              div .html(d.cv + "<br/>"  + d.dept)  
+                .style("left", (d3.event.pageX) + "px")     
+                .style("top", (d3.event.pageY - 28) + "px");
+              
+            }
+               )                  
+            .on("mouseout", function(d) {
+              
+              div.transition()        
+                .duration(500)      
+                .style("opacity", 0);
+              
+            }
+               );
+        
+        var div = d3.select("body").append("div")   
+            .attr("class", "tooltip")               
+            .style("opacity", 0);
+        
+        var legend = svg.selectAll(".legend")
+            .data(color.domain())
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function(d, i) {
+              return "translate(0," + i * 20 + ")";
+            }
+                 );
+        
+        legend.append("rect")
+          .attr("x", width - 18)
+          .attr("width", 18)
+          .attr("height", 18)
+          .style("fill", color);
+        
+        legend.append("text")
+          .attr("x", width - 24)
+          .attr("y", 9)
+          .attr("dy", ".35em")
+          .style("text-anchor", "end")
+          .text(function(d) {
+            return d.dept;
+          }
+               );
+        
+      }
+            );
+      
+    </script>
+    
+    <script type="text/javascript">
+      $.getJSON( "departments.json", function( data ) {
+        var items = [];
+        var count = 0;
+        $.each( data, function( key, val ) {
+          if (count % 3 == 0)
+          {
+          	if(count > 0)
+          	{
+          		items.push("</div>")
+          	}
+          	items.push("<div class='row-fluid'>")
+          }
+
+          items.push("<div class='span4'><input type='checkbox' id = '" + key + "' name = '" + val + "'> " + val + "</div>" );
+          count++;
+        }
+              );
+        
+        $( "<div/>", {
+          "class": "well",
+          html: items.join( "" )
+        }
+         ).appendTo( "#departments" );
+      }
+               );
+    </script>
+
+    <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
