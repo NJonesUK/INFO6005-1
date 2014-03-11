@@ -1,336 +1,518 @@
-
 <!DOCTYPE html>
 <meta charset="utf-8">
 
 <link href="nv/src/nv.d3.css" rel="stylesheet" type="text/css">
 <style>
-  body {
-    font: 10px sans-serif;
-    overflow-y:scroll;
-  }
-  
-  
-  text {
-    font: 12px sans-serif;
-  }
-  
-  .axis path,
-  .axis line {
-    fill: none;
-    stroke: #000;
-    shape-rendering: crispEdges;
-  }
-  
-  .dot {
-    stroke: #000;
-  }
-  
-  #chart1 {
-    margin: 10px;
-    min-width: 100px;
-    min-height: 100px;;
-    /*
+    body {
+        font: 10px sans-serif;
+        overflow-y: scroll;
+    }
+    text {
+        font: 12px sans-serif;
+    }
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+    .dot {
+        stroke: #000;
+    }
+    .h2 {
+        text-align: centre;
+        margin-top: 0px;
+    }
+    #chart1 {
+        margin: 10px;
+        min-width: 100px;
+        min-height: 100px;
+        ;
+        /*
     Minimum height and width is a good idea to prevent negative SVG dimensions...
     For example width should be =< margin.left + margin.right + 1,
     of course 1 pixel for the entire chart would not be very useful, BUT should not have errors
     */
-  }
-  
-  #chart1 svg {
-    height: 700px;
-  }
-  
-  div.tooltip {
-    
-    position: absolute;
-    
-    text-align: center;
-    
-    width: 120px;
-    
-    height: 40px;
-    
-    padding: 2px;
-    
-    font: 12px sans-serif;
-    
-    background: lightsteelblue;
-    
-    border: 0px;
-    
-    border-radius: 8px;
-    
-    pointer-events: none;
-    
-  }
-  
+    }
+    #chart1 svg {
+        height: 700px;
+    }
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        width: 150px;
+        height: 50px;
+        padding: 2px;
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
 </style>
+
 <body>
-  <div stle="align:center">
-    <div class="row-fluid">
-    	<form>
-    	<div id="departments" class="span12">
-    	</div>
-    	</form>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">INFO6005 Coursework 1 - Nick Jones - NOJ1G10</a>
+            </div>
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+    <div class="container">
+        <div class="jumbotron">
+            This display exists to show which agencies are making the most efficient use of their money, which are apable of performing according to plan and which are less capable of managing their money. It exists to provide a clear overview to allow decisionmakers
+            both within the agency and externally as to where the government expenditure is being most efficiently managed.
+        </div>
     </div>
-    <div id="chart1" class='with-3d-shadow with-transitions'>
-      <svg>
-      </svg>
+    <div id="departments1" class="container">
+        <h1>Multi-bar Plot of Average Cost and Time Variance by Agency</h1>
+
     </div>
-  </div>
-    <script src="/nv/lib/d3.v3.js">
+    <div class="container">
+        <div id="chart1" class='well with-3d-shadow with-transitions'>
+            <svg>
+            </svg>
+        </div>
+    </div>
+    <div class="container">
+        <h1>Scatter Plot of Cost Variance against Expenditure</h1>
+        <div id="departments2" class="container">
+
+        </div>
+        <div id="chart2" class='well' style="align:center">
+            <h2 id="chart2agencyname"></h2>
+        </div>
+    </div>
+    <script src="nv/lib/d3.v3.js">
     </script>
-    <script src="/nv/nv.d3.js">
+    <script src="nv/nv.d3.js">
     </script>
-    <script src="/nv/src/utils.js">
+    <script src="nv/src/utils.js">
     </script>
-    <script src="/nv/src/tooltip.js">
+    <script src="nv/src/tooltip.js">
     </script>
-    <script src="/nv/src/models/legend.js">
+    <script src="nv/src/models/legend.js">
     </script>
-    <script src="/nv/src/models/axis.js">
+    <script src="nv/src/models/axis.js">
     </script>
-    <script src="/nv/src/models/multiBarHorizontal.js">
+    <script src="nv/src/models/multiBarHorizontal.js">
     </script>
-    <script src="/nv/src/models/multiBarHorizontalChart.js">
+    <script src="nv/src/models/multiBarHorizontalChart.js">
     </script>
     <script src="nv/stream_layers.js">
     </script>
     <script src="http://code.jquery.com/jquery-1.11.0.min.js">
     </script>
     <script>
-      
-      
-      var chart;
-      $.getJSON('multi.json', function(data){
-      	window.bardata = data;
-  		nv.addGraph(function() {
-        chart = nv.models.multiBarHorizontalChart()
-          .x(function(d) {
-            return d.label }
-            )
-          .y(function(d) {
-            return d.value }
-            )
-          .margin({
-            top: 30, right: 20, bottom: 50, left: 175}
-                 )
-          //.showValues(true)
-          //.tooltips(false)
-          .barColor(d3.scale.category20().range())
-          .transitionDuration(250)
-          .stacked(false)
-          //.showControls(false);
-          
-          chart.yAxis
-            .tickFormat(d3.format(',.2f'));
-        
-        d3.select('#chart1 svg')
-          .datum(bardata)
-          .call(chart);
-        
-        nv.utils.windowResize(chart.update);
-        chart.multibar.dispatch.on("elementClick", function(e) {
-    		console.log(e);
-		});
+        function getChecked() {
+            var checkedBoxes = $("input:checked");
+            var departments = [];
+            checkedBoxes.each(function () {
+                departments.push($(this).attr('name'));
+            })
+            return departments;
 
-        chart.dispatch.on('stateChange', function(e) {
-          nv.log('New State:', JSON.stringify(e));
         }
-                         );
-        
-        return chart;
-      },function(){
-          d3.selectAll("text").on('click',
-               function(){
-                     console.log("test");
-           });
-      }
-                 )});
 
-      function loadDepartments(json){
-        
-      }
-      
-      function checkfilter (argument) {
-        // body...
-      }
-      
-      var margin = {
-        top: 20, right: 20, bottom: 30, left: 40}
-          ,
-          width = 960 - margin.left - margin.right,
-          height = 500 - margin.top - margin.bottom;
-      
-      var x = d3.scale.linear()
-          .range([0, width]);
-      
-      var y = d3.scale.linear()
-          .range([height, 0]);
-      
-      var color = d3.scale.category10();
-      
-      var xAxis = d3.svg.axis()
-          .scale(x)
-          .orient("bottom");
-      
-      var yAxis = d3.svg.axis()
-          .scale(y)
-          .orient("left");
-      
-      var svg = d3.select("body").append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-          .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-      
-      d3.tsv("Nuclear Regulatory Commission.tsv", function(error, data) {
-        data.forEach(function(d) {
-          d.tv = +d.tv;
-          d.cv = +d.cv;
+        function filterDataByDepartmentChart1() {
+            var newdata = []
+            var depts = getChecked();
+            console
+            if (depts.length == 0) {
+                console.log(window.bardata)
+                window.bardatacurrent = window.bardata;
+                console.log("New Data now :")
+                console.log(window.bardatacurrent)
+                drawGraph1()
+                return;
+            }
+            for (index = 0; index < window.bardata.length; ++index) {
+                var series = new Object()
+                series["color"] = window.bardata[index]["color"];
+                series["key"] = window.bardata[index]["key"];
+                values = []
+                for (index2 = 0; index2 < window.bardata[index]["values"].length; ++index2) {
+                    if ($.inArray(window.bardata[index]["values"][index2]["label"], depts) > -1) {
+                        values.push(window.bardata[index]["values"][index2]);
+                    }
+                }
+                series["values"] = values
+                newdata.push(series)
+            }
+            console.log("New Data now :")
+            console.log(newdata)
+            window.bardatacurrent = newdata;
+            drawGraph1()
         }
-                    );
-        
-        x.domain(d3.extent(data, function(d) {
-          return d.cv;
+
+        function drawGraph1() {
+            nv.addGraph(function () {
+                chart = nv.models.multiBarHorizontalChart()
+                    .x(function (d) {
+                        return d.label
+                    })
+                    .y(function (d) {
+                        return d.value
+                    })
+                    .margin({
+                        top: 30,
+                        right: 20,
+                        bottom: 50,
+                        left: 175
+                    })
+                //.showValues(true)
+                //.tooltips(false)
+                .barColor(d3.scale.category20().range())
+                    .transitionDuration(250)
+                    .stacked(false)
+                //.showControls(false);
+
+                chart.yAxis
+                    .tickFormat(d3.format(',.2f'));
+
+                if (!window.bardatacurrent || window.bardatacurrent.length == 0) {
+                    window.bardatacurrent = window.bardata
+                }
+
+                d3.select('#chart1 svg')
+                    .datum(window.bardatacurrent)
+                    .call(chart);
+
+                nv.utils.windowResize(chart.update);
+                chart.multibar.dispatch.on("elementClick", function (e) {
+                    console.log(e);
+                });
+
+                chart.dispatch.on('stateChange', function (e) {
+                    nv.log('New State:', JSON.stringify(e));
+                });
+
+                return chart;
+            })
         }
-                          )).nice();
-        y.domain(d3.extent(data, function(d) {
-          return d.tv;
-        }
-                          )).nice();
-        
-        svg.append("g")
-          .attr("class", "x axis")
-          .attr("transform", "translate(0," + height + ")")
-          .call(xAxis)
-          .append("text")
-          .attr("class", "label")
-          .attr("x", width)
-          .attr("y", -6)
-          .style("text-anchor", "end")
-          .text("Sepal Width (cm)");
-        
-        svg.append("g")
-          .attr("class", "y axis")
-          .call(yAxis)
-          .append("text")
-          .attr("class", "label")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 6)
-          .attr("dy", ".71em")
-          .style("text-anchor", "end")
-          .text("Sepal Length (cm)")
-          
-          svg.selectAll(".dot")
-            .data(data)
-            .enter().append("circle")
-            .attr("class", "dot")
-            .attr("r", 3.5)
-            .attr("cx", function(d) {
-              return x(d.cv);
-            }
-                 )
-            .attr("cy", function(d) {
-              return y(d.tv);
-            }
-                 )
-            .style("fill", function(d) {
-              return color(d.dept);
-            }
-                  )
-            .on("mouseover", function(d) {
-              
-              div.transition()        
-                .duration(200)      
-                .style("opacity", .9);
-              
-              div .html(d.cv + "<br/>"  + d.dept)  
-                .style("left", (d3.event.pageX) + "px")     
-                .style("top", (d3.event.pageY - 28) + "px");
-              
-            }
-               )                  
-            .on("mouseout", function(d) {
-              
-              div.transition()        
-                .duration(500)      
+
+        function reloadChart2(datafileid) {
+            $("#chart2").children("svg:first").remove();
+            $(".tooltip").remove();
+
+
+            var margin = {
+                top: 20,
+                right: 20,
+                bottom: 30,
+                left: 40
+            },
+                width = 960 - margin.left - margin.right,
+                height = 600 - margin.top - margin.bottom;
+
+            var x = d3.scale.linear()
+                .range([0, width]);
+
+            var y = d3.scale.linear()
+                .range([height, 0]);
+
+            var color = d3.scale.category10();
+
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom");
+
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left");
+
+            var svg = d3.select("#chart2").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            d3.tsv(datafileid + ".tsv", function (error, data) {
+                data.forEach(function (d) {
+                    d.cp = +d.cp;
+                    d.cv = +d.cv;
+                });
+
+                x.domain(d3.extent(data, function (d) {
+                    return d.cv;
+                })).nice();
+                y.domain(d3.extent(data, function (d) {
+                    return d.cp;
+                })).nice();
+
+                svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis)
+                    .append("text")
+                    .attr("class", "label")
+                    .attr("x", width)
+                    .attr("y", -6)
+                    .style("text-anchor", "end")
+                    .text("Cost Variance (%)");
+
+                svg.append("g")
+                    .attr("class", "y axis")
+                    .call(yAxis)
+                    .append("text")
+                    .attr("class", "label")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 6)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "end")
+                    .text("Percentage of Total Agency Expenditure (%)")
+            var div = d3.select("body").append("div")
+                .attr("class", "tooltip")
                 .style("opacity", 0);
-              
-            }
-               );
-        
-        var div = d3.select("body").append("div")   
-            .attr("class", "tooltip")               
-            .style("opacity", 0);
-        
-        var legend = svg.selectAll(".legend")
-            .data(color.domain())
-            .enter().append("g")
-            .attr("class", "legend")
-            .attr("transform", function(d, i) {
-              return "translate(0," + i * 20 + ")";
-            }
-                 );
-        
-        legend.append("rect")
-          .attr("x", width - 18)
-          .attr("width", 18)
-          .attr("height", 18)
-          .style("fill", color);
-        
-        legend.append("text")
-          .attr("x", width - 24)
-          .attr("y", 9)
-          .attr("dy", ".35em")
-          .style("text-anchor", "end")
-          .text(function(d) {
-            return d.dept;
-          }
-               );
-        
-      }
-            );
-      
+
+                svg.selectAll(".dot")
+                    .data(data)
+                    .enter().append("circle")
+                    .attr("class", "dot")
+                    .attr("r", 3.5)
+                    .attr("cx", function (d) {
+                        return x(d.cv);
+                    })
+                    .attr("cy", function (d) {
+                        return y(d.cp);
+                    })
+                    .style("fill", function (d) {
+                        return color(d.dept);
+                    })
+                    .on("mouseover", function (d) {
+
+                        div.transition()
+                            .duration(200)
+                            .style("opacity", .9);
+
+                        div.html("Time Variance: " + (Math.round(d.tv * 100) / 100) + "% <br/>" + d.pname)
+                            .style("left", (d3.event.pageX) + "px")
+                            .style("top", (d3.event.pageY - 28) + "px");
+
+                    })
+                    .on("mouseout", function (d) {
+
+                        div.transition()
+                            .duration(500)
+                            .style("opacity", 0);
+
+                    });
+            })
+            $("#chart2agencyname").text(datafileid)
+        }
+
+
+        var chart;
+
+        $.getJSON('multi.json', function (data) {
+            window.bardata = data;
+            window.bardatacurrent = filterDataByDepartmentChart1(window.bardata);
+            drawGraph1();
+        });
+
+        var margin = {
+            top: 20,
+            right: 20,
+            bottom: 30,
+            left: 40
+        },
+            width = 960 - margin.left - margin.right,
+            height = 600 - margin.top - margin.bottom;
+
+        var x = d3.scale.linear()
+            .range([0, width]);
+
+        var y = d3.scale.linear()
+            .range([height, 0]);
+
+        var color = d3.scale.category10();
+
+        var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left");
+
+        var svg = d3.select("#chart2").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        d3.tsv("Nuclear Regulatory Commission (NRC).tsv", function (error, data) {
+            data.forEach(function (d) {
+                d.cp = +d.cp;
+                d.cv = +d.cv;
+            });
+
+            x.domain(d3.extent(data, function (d) {
+                return d.cv;
+            })).nice();
+            y.domain(d3.extent(data, function (d) {
+                return d.cp;
+            })).nice();
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis)
+                .append("text")
+                .attr("class", "label")
+                .attr("x", width)
+                .attr("y", -6)
+                .style("text-anchor", "end")
+                .text("Cost Variance (%)");
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("class", "label")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Percentage of Total Agency Expenditure (%)")
+
+            svg.selectAll(".dot")
+                .data(data)
+                .enter().append("circle")
+                .attr("class", "dot")
+                .attr("r", 3.5)
+                .attr("cx", function (d) {
+                    return x(d.cv);
+                })
+                .attr("cy", function (d) {
+                    return y(d.cp);
+                })
+                .style("fill", function (d) {
+                    return color(d.dept);
+                })
+                .on("mouseover", function (d) {
+
+                    div.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+
+                    div.html("Time Variance: " + (Math.round(d.tv * 100) / 100) + "% <br/>" + d.pname)
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");
+
+                })
+                .on("mouseout", function (d) {
+
+                    div.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+
+                });
+
+            var div = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+            // var legend = svg.selectAll(".legend")
+            //     .data(color.domain())
+            //     .enter().append("g")
+            //     .attr("class", "legend")
+            //     .attr("transform", function(d, i) {
+            //       return "translate(0," + i * 20 + ")";
+            //     }
+            //          );
+
+            // legend.append("rect")
+            //   .attr("x", width - 18)
+            //   .attr("width", 18)
+            //   .attr("height", 18)
+            //   .style("fill", color);
+
+            // legend.append("text")
+            //   .attr("x", width - 24)
+            //   .attr("y", 9)
+            //   .attr("dy", ".35em")
+            //   .style("text-anchor", "end")
+            //   .text(function(d) {
+            //     return d["dept"];
+            //   }
+            //        );
+
+            $("#chart2agencyname").text("Nuclear Regulatory Commission (NRC)")
+
+        });
     </script>
-    
+
     <script type="text/javascript">
-      $.getJSON( "departments.json", function( data ) {
-        var items = [];
-        var count = 0;
-        $.each( data, function( key, val ) {
-          if (count % 3 == 0)
-          {
-          	if(count > 0)
-          	{
-          		items.push("</div>")
-          	}
-          	items.push("<div class='row-fluid'>")
-          }
+        //Build Checkbox List for Chart 1
+        $.getJSON("departments.json", function (data) {
+            var items = [];
+            var count = 0;
+            $.each(data, function (key, val) {
+                if (count % 9 == 0) {
+                    if (count > 0) {
+                        items.push("</div>")
+                    }
+                    items.push("<div class='controls col-md-4'>")
+                }
 
-          items.push("<div class='span4'><input type='checkbox' id = '" + key + "' name = '" + val + "'> " + val + "</div>" );
-          count++;
-        }
-              );
-        
-        $( "<div/>", {
-          "class": "well",
-          html: items.join( "" )
-        }
-         ).appendTo( "#departments" );
+                items.push("<label class='checkbox'><input class='chart1input' type='checkbox' id = '" + key + "' name = '" + val + "'> " + val + "</label>");
+                count++;
+            });
 
-        $(":checkbox").click(function(){
-    		console.log(this.name + this.checked)
-    	});
-      }
-               );
+            //Add checkboxes to departments list
+            $("<div/>", {
+                "class": "row",
+                html: items.join("")
+            }).appendTo("#departments1");
+
+            //Add onclick code to checkboxes
+            $(":checkbox.chart1input").click(function () {
+                var depts = getChecked();
+                filterDataByDepartmentChart1()
+            });
+        });
+
+         //Build radio button List for Chart 2
+        $.getJSON("departments.json", function (data) {
+            var items = [];
+            var count = 0;
+            $.each(data, function (key, val) {
+                if (count % 9 == 0) {
+                    if (count > 0) {
+                        items.push("</div>")
+                    }
+                    items.push("<div class='controls col-md-4'>")
+                }
+
+                items.push("<label class='radio'><input class='chart2input' type='radio' id = '" + val + "' name = 'chart2'> " + val + "</label>");
+                count++;
+            });
+
+            //Add checkboxes to departments list
+            $("<div/>", {
+                "class": "row",
+                html: items.join("")
+            }).appendTo("#departments2");
+
+            //Add onclick code to checkboxes
+            $(":radio.chart2input").click(function () {
+                reloadChart2(this.id)
+                console.log(this.id)
+            });
+        });
     </script>
 
     <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 
-<!-- Optional theme -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
 
-<!-- Latest compiled and minified JavaScript -->
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+</body>
+</html>
