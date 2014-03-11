@@ -10,6 +10,7 @@ fieldnames = ('Unique Investment Identifier', r'Business Case ID', r'Agency Code
 reader = csv.DictReader(infile, fieldnames)
 departments = {}
 department_project_totals = {}
+department_budget_percentage = {}
 project_numbers = {}
 project_time = {}
 project_time_variance = {}
@@ -43,6 +44,11 @@ for line in reader:
 		project_time_variance[acode] = [time_variance,]
 		project_cost[acode] = [cost,]
 		project_cost_variance[acode] = [cost_variance,]
+
+total_budget = 0
+for department in department_project_totals:
+	total_budget += department_project_totals[department]
+print "Total Budget - $" + str(round(total_budget))
 
 deptfile = open("departments.json", 'w')
 deptfile.write(json.dumps(departments))
@@ -86,23 +92,28 @@ for department in departments:
 	outfile.close
 
 
-avgjsondict = {}
-avgjsondict['avgtimevar'] = {}
-avgjsondict['avgcostvar'] = {}
+avgjsondict = []
+avgjsondict.append({}) #Percentage of Total Expenditure - Element 0
+avgjsondict.append({}) #Time Variation - Element 1
+avgjsondict.append({}) #Cost Variation - Element 2
 
-avgjsondict['avgtimevar']['key'] = "Average Time Variation"
-avgjsondict['avgcostvar']['key'] = "Average Cost Variation"
+avgjsondict[0]['key'] = "Percentage of Total Expenditure (%)"
+avgjsondict[1]['key'] = "Average Time Variation (%)"
+avgjsondict[2]['key'] = "Average Cost Variation (%)"
 
-avgjsondict['avgtimevar']['color'] = "#1f77b4"
-avgjsondict['avgcostvar']['color'] = "#d62728"
+avgjsondict[0]['color'] = "#27d67e"
+avgjsondict[1]['color'] = "#1f77b4"
+avgjsondict[2]['color'] = "#d62728"
 
-avgjsondict['avgtimevar']['values'] = []
-avgjsondict['avgcostvar']['values'] = []
+avgjsondict[0]['values'] = []
+avgjsondict[1]['values'] = []
+avgjsondict[2]['values'] = []
 
 
 for department in departments:
-	avgjsondict['avgtimevar']['values'].append({'label': departments[department], 'value': average_time_variance[department]})
-	avgjsondict['avgcostvar']['values'].append({'label': departments[department], 'value': average_cost_variance[department]})
+	avgjsondict[0]['values'].append({'label': departments[department], 'value': ((department_project_totals[department]/total_budget) * 100)})
+	avgjsondict[1]['values'].append({'label': departments[department], 'value': average_time_variance[department]})
+	avgjsondict[2]['values'].append({'label': departments[department], 'value': average_cost_variance[department]})
 
 
 outfile = open("multi.json", 'w')
